@@ -1,0 +1,26 @@
+{
+  "name": "opencode-prompt-enhancer",
+  "version": "1.0.0",
+  "description": "OpenCode plugin: intercepts Spanish prompts, enhances to expert-level technical English via DeepSeek",
+  "type": "module",
+  "main": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "opencode",
+    "plugin",
+    "prompt-enhancer",
+    "spanish",
+    "deepseek",
+    "llm"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.15.5"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "typescript": "^5.7.0"
+  }
+}
