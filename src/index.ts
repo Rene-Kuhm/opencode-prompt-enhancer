@@ -45,14 +45,29 @@ interface CodeSlot {
   content: string
 }
 
+/** Shape of the OpenCode merged config that the `config` hook receives. */
+interface OpenCodeProviderConfig {
+  provider?: {
+    deepseek?: {
+      options?: {
+        apiKey?: string
+        baseURL?: string
+      }
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Configuration (all via environment variables)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY ?? ""
-const DEEPSEEK_BASE_URL =
+let DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY ?? ""
+let DEEPSEEK_BASE_URL =
   process.env.PROMPT_ENHANCER_BASE_URL ?? "https://api.deepseek.com/v1"
 const DEEPSEEK_MODEL = process.env.PROMPT_ENHANCER_MODEL ?? "deepseek-chat"
+
+/** Default base URL to detect when no override is active. */
+const DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
 const MIN_MESSAGE_LENGTH = parseInt(
   process.env.PROMPT_ENHANCER_MIN_LENGTH ?? "20",
 )
@@ -530,6 +545,27 @@ export const PromptEnhancer: Plugin = async (_ctx) => {
   debug("PromptEnhancer v2.0.0 plugin loaded")
 
   return {
+    /**
+     * Read API key and base URL from OpenCode provider config as fallback.
+     * Only sets values if the corresponding env var is not already configured.
+     */
+    async config(cfg: OpenCodeProviderConfig) {
+      const providerOpts = cfg.provider?.deepseek?.options
+
+      if (providerOpts?.apiKey && !DEEPSEEK_API_KEY) {
+        DEEPSEEK_API_KEY = providerOpts.apiKey
+        debug("Using API key from provider config")
+      }
+
+      if (
+        providerOpts?.baseURL &&
+        DEEPSEEK_BASE_URL === DEFAULT_BASE_URL
+      ) {
+        DEEPSEEK_BASE_URL = providerOpts.baseURL
+        debug(`Using base URL from provider config: ${DEEPSEEK_BASE_URL}`)
+      }
+    },
+
     /**
      * Intercept every user message before it reaches the AI.
      *
